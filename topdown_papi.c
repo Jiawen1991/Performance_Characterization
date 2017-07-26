@@ -6,15 +6,15 @@
 #include <stdlib.h>
 
 int EventSet;
-int num_papi_events = 18;
+int num_papi_events;
 int * events;
 long long * valors;
 int EventCode;
-char * event_names[] = {"CPU_CLK_THREAD_UNHALTED","IDQ_UOPS_NOT_DELIVERED:CORE","UOPS_ISSUED:ANY", "UOPS_RETIRED:RETIRE_SLOTS","INT_MISC:RECOVERY_CYCLES", "BR_MISP_RETIRED:ALL_BRANCHES","MACHINE_CLEARS:COUNT", "IDQ:MS_UOPS", "CYCLE_ACTIVITY:CYCLES_NO_EXECUTE","RS_EVENTS:EMPTY_CYCLES","UOPS_EXECUTED:THREAD","CYCLE_ACTIVITY:STALLS_MEM_ANY","RESOURCE_STALLS:SB","CYCLE_ACTIVITY:STALLS_L1D_MISS","CYCLE_ACTIVITY:STALLS_L2_MISS","MEM_LOAD_UOPS_RETIRED:LLC_HIT","MEM_LOAD_UOPS_RETIRED:LLC_MISS","UNC_ARB_TRK_OCCUPANCY:ALL","UNC_CLOCK:SOCKET"};
+char * event_names[] = {"CPU_CLK_THREAD_UNHALTED","IDQ_UOPS_NOT_DELIVERED:CORE","UOPS_ISSUED:ANY", "UOPS_RETIRED:RETIRE_SLOTS","INT_MISC:RECOVERY_CYCLES", "BR_MISP_RETIRED:ALL_BRANCHES","MACHINE_CLEARS:COUNT", "IDQ:MS_UOPS", "CYCLE_ACTIVITY:CYCLES_NO_EXECUTE","RS_EVENTS:EMPTY_CYCLES","UOPS_EXECUTED:CORE","CYCLE_ACTIVITY:STALLS_LDM_PENDING","RESOURCE_STALLS:SB","CYCLE_ACTIVITY:STALLS_L1D_PENDING","CYCLE_ACTIVITY:STALLS_L2_PENDING","MEM_LOAD_UOPS_RETIRED:L3_HIT","MEM_LOAD_UOPS_RETIRED:L3_MISS"};
 
 void topdown_papi_init(){
         EventSet = PAPI_NULL;
-        num_papi_events = 15;
+        num_papi_events = 17;
         events = (int *) malloc(num_papi_events * sizeof(int));
         valors = (long long *) malloc(num_papi_events * sizeof(long long));
         EventCode = PAPI_NULL;
@@ -55,15 +55,13 @@ void topdown_papi_end(){
 	Frontend_Latency_Bound = (float)valors[1] / Clocks;
 	BrMispredFraction = (float)valors[5] / (valors[5] + valors[6]);
 	MicroSequencer = ((float)valors[3] / valors[2]) * valors[7] / Slots; 
-	//ExecutionStalls = (float)valors[8] - (float)valors[9]	
+	ExecutionStalls = ((float)valors[8] - valors[9] + valors[10]) / Clocks;
 	Memory_Bound = ((float)valors[11] + valors[12]) / Clocks;
 	L1_Bound = ((float)valors[11] - valors[13]) / Clocks;
 	L2_Bound = ((float)valors[13] - valors[14]) / Clocks;
 	L3HitFraction = (float)valors[15] / (valors[15] + (7 * valors[16]));
 	L3_Bound = (1 - L3HitFraction) * valors[14] / Clocks;
 	Ext_Memory_Bound = valors[11];
-	MEM_Bandwidth = (float)valors[17]/valors[18];
-	//MEM_Latenc = 
 
 	printf("----------\n");
 	printf("Frontend Bound = %.6f\n\n",Frontend_Bound);
@@ -76,15 +74,13 @@ void topdown_papi_end(){
 	printf("Frontend_Latency_Bound = %.6f\n\n", Frontend_Latency_Bound);
 	printf("BrMispredFraction = %.6f\n\n", BrMispredFraction);
 	printf("MicroSequencer = %.6f\n\n", MicroSequencer);
-	//printf("ExecutionStalls = %.6f\n\n", ExecutionStalls);
+	printf("ExecutionStalls = %.6f\n\n", ExecutionStalls);
 	printf("Memory_Bound = %.6f\n\n", Memory_Bound);
 	printf("L1_Bound = %.6f\n\n", L1_Bound);
 	printf("L2_Bound = %.6f\n\n", L2_Bound);
 	printf("L3HitFraction = %.6f\n\n", L3HitFraction);
 	printf("L3_Bound = %.6f\n\n", L3_Bound);
 	printf("Ext_Memory_Bound = %llu\n\n", Ext_Memory_Bound);
-	printf("MEM_Bandwidth = %.6f\n\n", MEM_Bandwidth);
-	//printf("MEM_Latency = %.6f\n\n", MEM_Latency);
 	
 }
 
