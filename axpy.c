@@ -74,8 +74,9 @@ int main(int argc, char *argv[]) {
 
     int i;
     int num_runs = 10;
-
-    topdown_papi_init();
+    
+    int num = 1;
+    topdown_papi_init(num);
     topdown_papi_start();
     
     double elapsed_omp_parallel_for = read_timer();

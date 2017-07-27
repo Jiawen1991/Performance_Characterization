@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void topdown_papi_init();
+void topdown_papi_init(int);
 void topdown_papi_start();
 void topdown_papi_end();
 void topdown_papi_finish();
